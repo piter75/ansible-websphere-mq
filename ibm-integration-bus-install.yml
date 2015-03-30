@@ -1,0 +1,99 @@
+---
+#
+# This playbook assumes the WebSphere MQ file provided by IBM has already been
+# downloaded to a specific directory (target.wd) on the server.
+#
+# ${target.wd} is a variable representing the working directory on the target
+# server the MQ client will be installed.
+#
+# Note: Although this playbook is designed to be able to be run independently,
+# it is in fact part of a longer playbook and therefore may have some other
+# unexpected dependencies not reflected here.
+#
+
+#
+# WebSphere MQ Settings
+#
+#
+# Install WebSphere MQ
+#
+-
+  name: Install IBM Integration Bus
+  hosts: iib
+  user: root
+  vars:
+    ibm_iib:
+      version: 9.0.0.2
+      zip_file: IIB_V9.0.0.2_LINUX_X86-64.tar.gz
+      user:
+        name: mqm
+      group:
+        name: mqbrkrs
+      packages:
+        - glibc.i686
+        - libgcc.i686
+      data_dir: /var/mqsi
+      prefix: /opt/ibm
+      kernel_params:
+        - { name: kernel.shmmni, value: 4096 }
+        - { name: kernel.shmall, value: 2097152 }
+        - { name: kernel.shmmax, value: 268435456 }
+        - { name: kernel.sem, value: '"500 256000 250 1024"' }
+        - { name: fs.file-max, value: 524288 }
+        - { name: net.ipv4.tcp_keepalive_time, value: 180 }
+      limits:
+        - { name: mqm.*soft.*nofile, value: mqm soft nofile 10240 }
+        - { name: mqm.*hard.*nofile, value: mqm hard nofile 10240 }
+        - { name: mqm.*soft.*nproc, value: mqm soft nproc 4096 }
+        - { name: mqm.*hard.*nproc, value: mqm hard nproc 4096 }
+
+    target:
+      wd: /opt/install/iib9
+
+#  vars_files:
+#    - vars.yml
+  gather_facts: false
+
+  tasks:
+    - name: Install required packages
+      yum: name={{ item }} state=present
+      with_items: ibm_iib.packages
+
+    - name: Create Broker group
+      group: name={{ ibm_iib.group.name }}
+
+    - name: Add mqm to Broker group
+      user: name={{ ibm_iib.user.name }} groups={{ ibm_iib.group.name }} append=yes
+
+    - name: Create Broker data dir
+      file: path={{ ibm_iib.data_dir }} state=directory mode=0775
+        owner={{ ibm_iib.user.name }} group={{ ibm_iib.group.name }}
+
+    - name: Create Broker install dir
+      file: path={{ ibm_iib.prefix }}/mqsi state=directory mode=0775
+        owner={{ ibm_iib.user.name }} group={{ ibm_iib.group.name }}
+
+    - name: Create Broker IE02 dir
+      file: path={{ ibm_iib.prefix }}/IE02 state=directory mode=0775
+        owner={{ ibm_iib.user.name }} group={{ ibm_iib.group.name }}
+
+    - name: Create Broker install directory
+      file: path={{ target.wd }} state=directory
+
+    - name: Untar Broker install file
+      command: tar zxf /vagrant/{{ ibm_iib.zip_file }}
+        chdir={{ target.wd }}
+        creates={{ target.wd }}/integrationbus_runtime1
+
+    - name: Prepare response file for silent install
+      template: src=templates/response.properties.j2
+        dest={{ target.wd }}/integrationbus_runtime1/response.properties
+        owner={{ ibm_iib.user.name }} group={{ ibm_iib.group.name }} mode=0644
+
+    - name: Install Broker in silent mode
+      shell: ./setuplinuxx64 -f response.properties
+        chdir={{ target.wd }}/integrationbus_runtime1
+        creates="{{ ibm_iib.prefix }}/mqsi/{{ ibm_iib.version }}"
+      sudo: yes
+      sudo_user: "{{ ibm_iib.user.name }}"
+
