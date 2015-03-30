@@ -34,11 +34,18 @@
       rpm_suffix: '-7.5.0-2.x86_64.rpm'
       prefix: /opt/mqm
       kernel_params:
-        - { name:kernel.shmmni, value:4096 }
-        - { name:kernel.shmall, value:2097152 }
-        - { name:kernel.shmmax, value:268435456 }
-        - { name:kernel.sem, value:'"500 256000 250 1024"' }
-        - { name:fs.file-max, value:524288 }
+        - { name: kernel.shmmni, value: 4096 }
+        - { name: kernel.shmall, value: 2097152 }
+        - { name: kernel.shmmax, value: 268435456 }
+        - { name: kernel.sem, value: '"500 256000 250 1024"' }
+        - { name: fs.file-max, value: 524288 }
+        - { name: net.ipv4.tcp_keepalive_time, value: 180 }
+      limits:
+        - { name: mqm.*soft.*nofile, value: mqm soft nofile 10240 }
+        - { name: mqm.*hard.*nofile, value: mqm hard nofile 10240 }
+        - { name: mqm.*soft.*nproc, value: mqm soft nproc 4096 }
+        - { name: mqm.*hard.*nproc, value: mqm hard nproc 4096 }
+
     target:
       wd: /opt/install/mq75
 
@@ -74,6 +81,12 @@
       sysctl: name={{ item.name }} value={{ item.value }} state=present ignoreerrors=yes
       with_items: websphere_mq.kernel_params
 
+    - name: Setup MQ limits
+      lineinfile: dest=/etc/security/limits.d/99-mqm.conf create=yes
+        regexp="{{ item.name }}"
+        line="{{ item.value }}"
+      with_items: websphere_mq.limits
+
     - name: Install MQ series packages using yum
       yum: name={{ item }} state=present
       with_items:
@@ -90,3 +103,8 @@
       command: '{{ websphere_mq.prefix }}/bin/setmqinst -i -p {{ websphere_mq.prefix }}'
       when: '{{ is_primary_mq_set.stdout }} == 0'
 
+    - name: Setting mqm user environment
+      lineinfile: dest={{ websphere_mq.user.home }}/.bashrc
+        create=yes owner={{ websphere_mq.user.name }}
+        regexp="{{ websphere_mq.prefix }}/bin/setmqenv"
+        line=". {{ websphere_mq.prefix }}/bin/setmqenv -s"
