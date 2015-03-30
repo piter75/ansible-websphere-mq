@@ -34,11 +34,11 @@
       rpm_suffix: '-7.5.0-2.x86_64.rpm'
       prefix: /opt/mqm
       kernel_params:
-        - { name=kernel.shmmni, value=4096 }
-        - { name=kernel.shmall, value=2097152 }
-        - { name=kernel.shmmax, value=268435456 }
-        - { name=kernel.sem, value='"500 256000 250 1024"' }
-        - { name=fs.file-max, value=524288 }
+        - { name:kernel.shmmni, value:4096 }
+        - { name:kernel.shmall, value:2097152 }
+        - { name:kernel.shmmax, value:268435456 }
+        - { name:kernel.sem, value:'"500 256000 250 1024"' }
+        - { name:fs.file-max, value:524288 }
     target:
       wd: /opt/install/mq75
 
