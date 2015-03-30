@@ -27,6 +27,7 @@
       zip_file: IIB_V9.0.0.2_LINUX_X86-64.tar.gz
       user:
         name: mqm
+        home: /var/mqm
       group:
         name: mqbrkrs
       packages:
@@ -96,4 +97,10 @@
         creates="{{ ibm_iib.prefix }}/mqsi/{{ ibm_iib.version }}"
       sudo: yes
       sudo_user: "{{ ibm_iib.user.name }}"
+
+    - name: Setting mqm user environment for Broker
+      lineinfile: dest={{ ibm_iib.user.home }}/.bashrc
+        create=yes owner={{ ibm_iib.user.name }}
+        regexp="/bin/mqsiprofile"
+        line=". {{ ibm_iib.prefix }}/mqsi/{{ ibm_iib.version }}/bin/mqsiprofile"
 
