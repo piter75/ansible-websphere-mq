@@ -1,0 +1,60 @@
+---
+#
+# This playbook assumes the WebSphere MQ file provided by IBM has already been
+# downloaded to a specific directory (target.wd) on the server. 
+#
+# ${target.wd} is a variable representing the working directory on the target
+# server the MQ client will be installed.
+#
+# Note: Although this playbook is designed to be able to be run independently,
+# it is in fact part of a longer playbook and therefore may have some other
+# unexpected dependencies not reflected here.
+#
+
+#
+# WebSphere MQ Settings
+#
+#
+# Install WebSphere MQ 
+#
+-
+  name: Update WebSphere MQ
+  hosts: mq
+  user: root
+  vars:
+    websphere_mq:
+      zip_file: 7.5.0-WS-MQ-LinuxX64-FP0004.tar.gz
+      rpm_suffix: '-U200491-7.5.0-4.x86_64.rpm'
+      prefix: /opt/mqm
+    target:
+      wd: /opt/install/mq75-fp04
+
+#  vars_files:
+#    - vars.yml
+  gather_facts: false
+  
+  tasks:
+    - name: Create install directory
+      file: path={{ target.wd }} state=directory
+
+    - name: Untar MQ Client
+      command: tar zxf /vagrant/{{ websphere_mq.zip_file }}
+        chdir={{ target.wd }}
+        creates={{ target.wd }}/MQSeriesRuntime{{ websphere_mq.rpm_suffix }}
+          
+    - name: Install MQ series packages using yum
+      yum: name={{ item }} state=present
+      with_items:
+        - '{{ target.wd }}/MQSeriesRuntime{{ websphere_mq.rpm_suffix }}'
+        - '{{ target.wd }}/MQSeriesServer{{ websphere_mq.rpm_suffix }}'
+        - '{{ target.wd }}/MQSeriesJRE{{ websphere_mq.rpm_suffix }}'
+        - '{{ target.wd }}/MQSeriesJava{{ websphere_mq.rpm_suffix }}'
+
+    - name: Checking primary MQ installation
+      action: shell grep -E 'FilePath=/opt/mqm$' /etc/opt/mqm/mqinst.ini | wc -l
+      register: is_primary_mq_set
+
+    - name: Setup primary MQ installation
+      command: '{{ websphere_mq.prefix }}/bin/setmqinst -i -p {{ websphere_mq.prefix }}'
+      when: '{{ is_primary_mq_set.stdout }} == 0'
+
