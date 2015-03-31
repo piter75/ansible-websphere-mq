@@ -1,5 +1,7 @@
 ---
 
 - name: IBM Integration Bus 9.x role
+  user: root
 
 - include: iib9-install.yml
+

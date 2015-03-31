@@ -17,44 +17,7 @@
 #
 # Install WebSphere MQ
 #
--
-  name: Install IBM Integration Bus
-  user: root
-  vars:
-    ibm_iib:
-      version: 9.0.0.2
-      zip_file: IIB_V9.0.0.2_LINUX_X86-64.tar.gz
-      user:
-        name: mqm
-        home: /var/mqm
-      group:
-        name: mqbrkrs
-      packages:
-        - glibc.i686
-        - libgcc.i686
-      data_dir: /var/mqsi
-      prefix: /opt/ibm
-      kernel_params:
-        - { name: kernel.shmmni, value: 4096 }
-        - { name: kernel.shmall, value: 2097152 }
-        - { name: kernel.shmmax, value: 268435456 }
-        - { name: kernel.sem, value: '"500 256000 250 1024"' }
-        - { name: fs.file-max, value: 524288 }
-        - { name: net.ipv4.tcp_keepalive_time, value: 180 }
-      limits:
-        - { name: mqm.*soft.*nofile, value: mqm soft nofile 10240 }
-        - { name: mqm.*hard.*nofile, value: mqm hard nofile 10240 }
-        - { name: mqm.*soft.*nproc, value: mqm soft nproc 4096 }
-        - { name: mqm.*hard.*nproc, value: mqm hard nproc 4096 }
 
-    target:
-      wd: /opt/install/iib9
-
-#  vars_files:
-#    - vars.yml
-  gather_facts: false
-
-  tasks:
     - name: Install required packages
       yum: name={{ item }} state=present
       with_items: ibm_iib.packages
