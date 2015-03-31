@@ -19,7 +19,6 @@
 #
 -
   name: Install IBM Integration Bus
-  hosts: iib
   user: root
   vars:
     ibm_iib:

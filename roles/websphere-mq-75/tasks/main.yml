@@ -18,8 +18,7 @@
 # Install WebSphere MQ 
 #
 -
-  name: Install WebSphere MQ
-  hosts: mq
+  name: WebSphere MQ 7.5 role
   user: root
 
 - include: websphere-mq-install.yml

@@ -19,7 +19,6 @@
 #
 -
   name: Update WebSphere MQ
-  hosts: mq
   user: root
   vars:
     websphere_mq:

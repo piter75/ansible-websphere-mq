@@ -1,0 +1,5 @@
+---
+
+- name: IBM Integration Bus 9.x role
+
+- include: iib9-install.yml
