@@ -1,7 +1,12 @@
 ---
+#
+# This role assumes the IBM Integration Bus files provided by IBM
+# have already been downloaded to a specific directory (target.wd) on the server.
+#
 
-- name: IBM Integration Bus 9.x role
-  user: root
+#
+# Install IBM Integration Bus
+#
 
 - include: iib9-install.yml
 

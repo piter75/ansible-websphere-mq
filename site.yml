@@ -1,15 +1,4 @@
 ---
 
-- hosts: mq
-  user: root
-
-  gather_facts: false
-
-  roles:
-    - websphere-mq-75
-
-- hosts: iib
-  user: root
-
-  roles:
-    - ibm-integration-bus-9
+- include: mq75.yml
+- include: iib9.yml

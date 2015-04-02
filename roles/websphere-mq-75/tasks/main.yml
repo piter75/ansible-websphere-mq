@@ -1,25 +1,15 @@
 ---
 #
-# This playbook assumes the WebSphere MQ file provided by IBM has already been
-# downloaded to a specific directory (target.wd) on the server. 
+# This role is inspired by klenwell's gist:
+#                    https://gist.github.com/klenwell/cdf2dc92ddfe2e7e18fc
 #
-# ${target.wd} is a variable representing the working directory on the target
-# server the MQ client will be installed.
-#
-# Note: Although this playbook is designed to be able to be run independently,
-# it is in fact part of a longer playbook and therefore may have some other
-# unexpected dependencies not reflected here.
+# This role assumes the WebSphere MQ files provided by IBM (install and update)
+# have already been downloaded to a specific directory (target.wd) on the server.
 #
 
 #
-# WebSphere MQ Settings
+# Install and update WebSphere MQ
 #
-#
-# Install WebSphere MQ 
-#
--
-  name: WebSphere MQ 7.5 role
-  user: root
 
 - include: websphere-mq-install.yml
 

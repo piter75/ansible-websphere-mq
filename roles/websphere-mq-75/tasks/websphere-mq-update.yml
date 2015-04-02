@@ -19,11 +19,11 @@
 #
 
 - name: Create install directory
-  file: path={{ webpshere_mq_update.wd }} state=directory
+  file: path={{ websphere_mq_update.wd }} state=directory
 
 - name: Untar MQ Client
   command: tar zxf /vagrant/{{ websphere_mq_update.zip_file }}
-    chdir={{ target.wd }}
+    chdir={{ websphere_mq_update.wd }}
     creates={{ websphere_mq_update.wd }}/MQSeriesRuntime{{ websphere_mq_update.rpm_suffix }}
       
 - name: Install MQ series packages using yum

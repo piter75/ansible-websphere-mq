@@ -1,20 +1,5 @@
 ---
 #
-# This playbook assumes the WebSphere MQ file provided by IBM has already been
-# downloaded to a specific directory (websphere_mq.wd) on the server. 
-#
-# ${websphere_mq.wd} is a variable representing the working directory on the websphere_mq
-# server the MQ client will be installed.
-#
-# Note: Although this playbook is designed to be able to be run independently,
-# it is in fact part of a longer playbook and therefore may have some other
-# unexpected dependencies not reflected here.
-#
-
-#
-# WebSphere MQ Settings
-#
-#
 # Install WebSphere MQ 
 #
 - name: Install required packages

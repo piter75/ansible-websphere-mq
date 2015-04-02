@@ -18,51 +18,51 @@
 # Install WebSphere MQ
 #
 
-    - name: Install required packages
-      yum: name={{ item }} state=present
-      with_items: ibm_iib.packages
+- name: Install required packages
+  yum: name={{ item }} state=present
+  with_items: ibm_iib.packages
 
-    - name: Create Broker group
-      group: name={{ ibm_iib.group.name }}
+- name: Create Broker group
+  group: name={{ ibm_iib.group.name }}
 
-    - name: Add mqm to Broker group
-      user: name={{ ibm_iib.user.name }} groups={{ ibm_iib.group.name }} append=yes
+- name: Add mqm to Broker group
+  user: name={{ ibm_iib.user.name }} groups={{ ibm_iib.group.name }} append=yes
 
-    - name: Create Broker data dir
-      file: path={{ ibm_iib.data_dir }} state=directory mode=0775
-        owner={{ ibm_iib.user.name }} group={{ ibm_iib.group.name }}
+- name: Create Broker data dir
+  file: path={{ ibm_iib.data_dir }} state=directory mode=0775
+    owner={{ ibm_iib.user.name }} group={{ ibm_iib.group.name }}
 
-    - name: Create Broker install dir
-      file: path={{ ibm_iib.prefix }}/mqsi state=directory mode=0775
-        owner={{ ibm_iib.user.name }} group={{ ibm_iib.group.name }}
+- name: Create Broker install dir
+  file: path={{ ibm_iib.prefix }}/mqsi state=directory mode=0775
+    owner={{ ibm_iib.user.name }} group={{ ibm_iib.group.name }}
 
-    - name: Create Broker IE02 dir
-      file: path={{ ibm_iib.prefix }}/IE02 state=directory mode=0775
-        owner={{ ibm_iib.user.name }} group={{ ibm_iib.group.name }}
+- name: Create Broker IE02 dir
+  file: path={{ ibm_iib.prefix }}/IE02 state=directory mode=0775
+    owner={{ ibm_iib.user.name }} group={{ ibm_iib.group.name }}
 
-    - name: Create Broker install directory
-      file: path={{ target.wd }} state=directory
+- name: Create Broker install directory
+  file: path={{ target.wd }} state=directory
 
-    - name: Untar Broker install file
-      command: tar zxf /vagrant/{{ ibm_iib.zip_file }}
-        chdir={{ target.wd }}
-        creates={{ target.wd }}/integrationbus_runtime1
+- name: Untar Broker install file
+  command: tar zxf /vagrant/{{ ibm_iib.zip_file }}
+    chdir={{ target.wd }}
+    creates={{ target.wd }}/integrationbus_runtime1
 
-    - name: Prepare response file for silent install
-      template: src=templates/response.properties.j2
-        dest={{ target.wd }}/integrationbus_runtime1/response.properties
-        owner={{ ibm_iib.user.name }} group={{ ibm_iib.group.name }} mode=0644
+- name: Prepare response file for silent install
+  template: src=response.properties.j2
+    dest={{ target.wd }}/integrationbus_runtime1/response.properties
+    owner={{ ibm_iib.user.name }} group={{ ibm_iib.group.name }} mode=0644
 
-    - name: Install Broker in silent mode
-      shell: ./setuplinuxx64 -f response.properties
-        chdir={{ target.wd }}/integrationbus_runtime1
-        creates="{{ ibm_iib.prefix }}/mqsi/{{ ibm_iib.version }}"
-      sudo: yes
-      sudo_user: "{{ ibm_iib.user.name }}"
+- name: Install Broker in silent mode
+  shell: ./setuplinuxx64 -f response.properties
+    chdir={{ target.wd }}/integrationbus_runtime1
+    creates="{{ ibm_iib.prefix }}/mqsi/{{ ibm_iib.version }}"
+  sudo: yes
+  sudo_user: "{{ ibm_iib.user.name }}"
 
-    - name: Setting mqm user environment for Broker
-      lineinfile: dest={{ ibm_iib.user.home }}/.bashrc
-        create=yes owner={{ ibm_iib.user.name }}
-        regexp="/bin/mqsiprofile"
-        line=". {{ ibm_iib.prefix }}/mqsi/{{ ibm_iib.version }}/bin/mqsiprofile"
+- name: Setting mqm user environment for Broker
+  lineinfile: dest={{ ibm_iib.user.home }}/.bashrc
+    create=yes owner={{ ibm_iib.user.name }}
+    regexp="/bin/mqsiprofile"
+    line=". {{ ibm_iib.prefix }}/mqsi/{{ ibm_iib.version }}/bin/mqsiprofile"
 

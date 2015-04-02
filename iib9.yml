@@ -1,0 +1,7 @@
+---
+
+- hosts: iib
+
+  roles:
+    - ibm-integration-bus-9
+
