@@ -1,0 +1,65 @@
+---
+#
+# Install IBM DB2 9.7 Runtime Client
+#
+- name: Create install directory
+  file: path={{ db2_client_97.wd }} state=directory
+
+- name: Untar DB2 9.7 Runtime Client install file
+  command: tar zxf /vagrant/{{ db2_client_97.zip_file }}
+    chdir={{ db2_client_97.wd }}
+    creates={{ db2_client_97.wd }}/rtcl/db2setup
+
+- name: Setup DB2 Client instance user
+  user: name={{ db2_client_97.user.name }}
+    home={{ db2_client_97.user.home }}
+    state=present
+
+- name: Prepare response file for silent install
+  template: src=db2response
+    dest={{ db2_client_97.wd }}/rtcl/db2response
+    owner={{ db2_client_97.user.name }} mode=0644
+
+- name: Install DB2 Runtime Client in silent mode
+  shell: ./db2setup -r db2response
+    chdir={{ db2_client_97.wd }}/rtcl/
+    creates={{ db2_client_97.prefix }}
+#  sudo: yes
+#  sudo_user: "{{ db2_client_97.user.name }}"
+
+#- name: Setup MQ kernel params
+#  sysctl: name={{ item.name }} value={{ item.value }} state=present ignoreerrors=yes
+#  with_items: db2_client_97.kernel_params
+
+#- name: Setup MQ limits
+#  lineinfile: dest=/etc/security/limits.d/99-mqm.conf create=yes
+#    regexp="{{ item.name }}"
+#    line="{{ item.value }}"
+#  with_items: db2_client_97.limits
+#
+#- name: Install MQ series packages using yum
+#  yum: name={{ item }} state=present
+#  with_items:
+#    - '{{ db2_client_97.wd }}/MQSeriesRuntime{{ db2_client_97.rpm_suffix }}'
+#    - '{{ db2_client_97.wd }}/MQSeriesServer{{ db2_client_97.rpm_suffix }}'
+#    - '{{ db2_client_97.wd }}/MQSeriesJRE{{ db2_client_97.rpm_suffix }}'
+#    - '{{ db2_client_97.wd }}/MQSeriesJava{{ db2_client_97.rpm_suffix }}'
+#
+#- name: Checking primary MQ installation
+#  action: shell grep -E 'FilePath=/opt/mqm$' /etc/opt/mqm/mqinst.ini | wc -l
+#  register: is_primary_mq_set
+#
+#- name: Setup primary MQ installation
+#  command: '{{ db2_client_97.prefix }}/bin/setmqinst -i -p {{ db2_client_97.prefix }}'
+#  when: '{{ is_primary_mq_set.stdout }} == 0'
+
+- name: Create default DB2 Client instance
+  shell: ./db2icrt {{ db2_client_97.instance_name }}
+    chdir={{ db2_client_97.prefix }}/instance/
+    creates={{ db2_client_97.user.home }}/sqllib/db2profile
+
+- name: Setting DB2 Client instance environment
+  lineinfile: dest={{ db2_client_97.user.home }}/.bashrc
+    create=yes owner={{ db2_client_97.user.name }}
+    regexp="{{ db2_client_97.user.home }}/sqllib/db2profile"
+    line=". {{ db2_client_97.user.home }}/sqllib/db2profile"

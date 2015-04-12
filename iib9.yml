@@ -1,6 +1,7 @@
 ---
 
 - hosts: iib
+  user: root
 
   roles:
     - ibm-integration-bus-9

@@ -1,0 +1,32 @@
+---
+db2_client_97:
+  zip_file: v9.7fp10_linuxx64_rtcl.tar.gz
+  user:
+    name: db2inst1
+    home: /home/db2inst
+  instance_name: db2inst1
+  packages:
+    - bc
+    - pax
+    - rpm-build
+  prefix: /opt/ibm/db2/V9.7
+  wd: /opt/install/db2_client_97
+  kernel_params:
+    - { name: kernel.shmmni, value: 4096 }
+    - { name: kernel.shmall, value: 2097152 }
+    - { name: kernel.shmmax, value: 268435456 }
+    - { name: kernel.sem, value: '"500 256000 250 1024"' }
+    - { name: fs.file-max, value: 524288 }
+    - { name: net.ipv4.tcp_keepalive_time, value: 180 }
+  limits:
+    - { name: mqm.*soft.*nofile, value: mqm soft nofile 10240 }
+    - { name: mqm.*hard.*nofile, value: mqm hard nofile 10240 }
+    - { name: mqm.*soft.*nproc, value: mqm soft nproc 4096 }
+    - { name: mqm.*hard.*nproc, value: mqm hard nproc 4096 }
+
+websphere_mq_update:
+  zip_file: 7.5.0-WS-MQ-LinuxX64-FP0004.tar.gz
+  rpm_suffix: '-U200491-7.5.0-4.x86_64.rpm'
+  prefix: /opt/mqm
+  wd: /opt/install/mq75-fp04
+

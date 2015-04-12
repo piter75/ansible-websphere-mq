@@ -1,0 +1,10 @@
+---
+
+- hosts: db2clients
+  user: root
+
+  gather_facts: false
+
+  roles:
+    - db2-client-97
+

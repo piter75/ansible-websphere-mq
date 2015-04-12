@@ -1,3 +1,4 @@
 ---
 dependencies:
   - { role: websphere-mq-75 }
+  - { role: db2-client-97 }

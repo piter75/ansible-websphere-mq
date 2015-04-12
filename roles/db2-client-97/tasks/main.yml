@@ -1,0 +1,17 @@
+---
+#
+# This role is inspired by klenwell's gist:
+#                    https://gist.github.com/klenwell/cdf2dc92ddfe2e7e18fc
+#
+# This role assumes the WebSphere MQ files provided by IBM (install and update)
+# have already been downloaded to a specific directory (target.wd) on the server.
+#
+
+#
+# Install and update WebSphere MQ
+#
+
+- include: db2-client-97-install.yml
+
+#- include: websphere-mq-update.yml
+

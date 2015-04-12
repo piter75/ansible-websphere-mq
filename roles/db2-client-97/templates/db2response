@@ -1,0 +1,17 @@
+*--------------------------
+* Product Installation
+*--------------------------
+PROD = RUNTIME_CLIENT
+FILE = /opt/ibm/db2/V9.7
+LIC_AGREEMENT = ACCEPT
+INSTALL_TYPE = CUSTOM
+COMP = BASE_CLIENT
+*COMP = BASE_CLIENT_R
+COMP = JAVA_SUPPORT
+COMP = CLPPLUS
+*COMP = SQL_PROCEDURES
+*COMP = INSTANCE_SETUP_SUPPORT
+*--------------------------
+* Installed Languages
+*--------------------------
+LANG = EN
