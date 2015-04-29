@@ -3,7 +3,7 @@ db2_client_97:
   zip_file: v9.7fp10_linuxx64_rtcl.tar.gz
   user:
     name: db2inst1
-    home: /home/db2inst
+    home: /home/db2inst1
   instance_name: db2inst1
   packages:
     - bc
