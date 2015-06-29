@@ -5,6 +5,7 @@ websphere_mq:
     name: mqm
     home: /var/mqm
   packages:
+    - libselinux-python
     - bc
     - pax
     - rpm-build
