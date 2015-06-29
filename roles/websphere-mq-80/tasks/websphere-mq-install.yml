@@ -1,0 +1,53 @@
+---
+#
+# Install WebSphere MQ 
+#
+- name: Install required packages
+  yum: name={{ item }} state=present
+  with_items: websphere_mq.packages
+
+- name: Create install directory
+  file: path={{ websphere_mq.wd }} state=directory
+
+# Need to run this with ksh; script syntax is not bash-compliant
+- name: Accept MQ Series license
+  command: sh mqlicense.sh -accept
+    chdir={{ websphere_mq.wd }}
+    creates=/etc/opt/mqm/mqinst.ini
+  
+- name: Setup mqm user
+  user: name={{ websphere_mq.user.name }}
+    home={{ websphere_mq.user.home }}
+    state=present
+
+- name: Setup MQ kernel params
+  sysctl: name={{ item.name }} value={{ item.value }} state=present ignoreerrors=yes
+  with_items: websphere_mq.kernel_params
+
+- name: Setup MQ limits
+  lineinfile: dest=/etc/security/limits.d/99-mqm.conf create=yes
+    regexp="{{ item.name }}"
+    line="{{ item.value }}"
+  with_items: websphere_mq.limits
+
+- name: Install MQ series packages using yum
+  yum: name={{ item }} state=present
+  with_items:
+    - '{{ websphere_mq.wd }}/MQSeriesRuntime{{ websphere_mq.rpm_suffix }}'
+    - '{{ websphere_mq.wd }}/MQSeriesServer{{ websphere_mq.rpm_suffix }}'
+    - '{{ websphere_mq.wd }}/MQSeriesJRE{{ websphere_mq.rpm_suffix }}'
+    - '{{ websphere_mq.wd }}/MQSeriesJava{{ websphere_mq.rpm_suffix }}'
+
+- name: Checking primary MQ installation
+  action: shell grep -E 'FilePath=/opt/mqm$' /etc/opt/mqm/mqinst.ini | wc -l
+  register: is_primary_mq_set
+
+- name: Setup primary MQ installation
+  command: '{{ websphere_mq.prefix }}/bin/setmqinst -i -p {{ websphere_mq.prefix }}'
+  when: '{{ is_primary_mq_set.stdout }} == 0'
+
+- name: Setting mqm user environment
+  lineinfile: dest={{ websphere_mq.user.home }}/.bashrc
+    create=yes owner={{ websphere_mq.user.name }}
+    regexp="{{ websphere_mq.prefix }}/bin/setmqenv"
+    line=". {{ websphere_mq.prefix }}/bin/setmqenv -s"

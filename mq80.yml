@@ -1,0 +1,10 @@
+---
+
+- hosts: mq
+  user: root
+
+  gather_facts: false
+
+  roles:
+    - websphere-mq-80
+
