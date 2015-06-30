@@ -29,5 +29,5 @@ websphere_mq_update:
   zip_file: 7.5.0-WS-MQ-LinuxX64-FP0004.tar.gz
   rpm_suffix: '-U8003-8.0.0-3.x86_64.rpm'
   prefix: /opt/mqm
-  wd: /opt/install/mq80/8.0.0-3
+  wd: /vagrant/mq80/8.0.0-3
 
