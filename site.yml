@@ -1,6 +1,7 @@
 ---
 
 - include: db2c97.yml
+- include: db2c105.yml
 - include: mq75.yml
 - include: mq80.yml
 - include: iib9.yml

@@ -1,0 +1,37 @@
+---
+#
+# Install IBM DB2 9.7 Runtime Client
+#
+- name: Create install directory
+  file: path={{ db2_client_105.wd }} state=directory
+
+- name: Untar DB2 10.5 Runtime Client install file
+  command: tar zxf /vagrant/{{ db2_client_105.zip_file }}
+    chdir={{ db2_client_105.wd }}
+    creates={{ db2_client_105.wd }}/rtcl/db2setup
+
+- name: Setup DB2 Client instance user
+  user: name={{ db2_client_105.user.name }}
+    home={{ db2_client_105.user.home }}
+    state=present
+
+- name: Prepare response file for silent install
+  template: src=db2response
+    dest={{ db2_client_105.wd }}/rtcl/db2response
+    owner={{ db2_client_105.user.name }} mode=0644
+
+- name: Install DB2 Runtime Client in silent mode
+  shell: ./db2setup -r db2response
+    chdir={{ db2_client_105.wd }}/rtcl/
+    creates={{ db2_client_105.prefix }}
+
+- name: Create default DB2 Client instance
+  shell: ./db2icrt {{ db2_client_105.instance_name }}
+    chdir={{ db2_client_105.prefix }}/instance/
+    creates={{ db2_client_105.user.home }}/sqllib/db2profile
+
+- name: Setting DB2 Client instance environment
+  lineinfile: dest={{ db2_client_105.user.home }}/.bashrc
+    create=yes owner={{ db2_client_105.user.name }}
+    regexp="{{ db2_client_105.user.home }}/sqllib/db2profile"
+    line=". {{ db2_client_105.user.home }}/sqllib/db2profile"
