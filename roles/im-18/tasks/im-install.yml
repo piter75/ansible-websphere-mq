@@ -1,0 +1,49 @@
+---
+#
+# Install Installation Manager
+#
+- name: Install required packages
+  yum: name={{ item }} state=present
+  with_items: im.packages
+
+#- name: Create install directory
+#  file: path={{ websphere_mq.wd }} state=directory
+
+#- name: Setup mqm user
+#  user: name={{ websphere_mq.user.name }}
+#    home={{ websphere_mq.user.home }}
+#    state=present
+
+#- name: Setup MQ kernel params
+#  sysctl: name={{ item.name }} value={{ item.value }} state=present ignoreerrors=yes
+#  with_items: websphere_mq.kernel_params
+#
+#- name: Setup MQ limits
+#  lineinfile: dest=/etc/security/limits.d/99-mqm.conf create=yes
+#    regexp="{{ item.name }}"
+#    line="{{ item.value }}"
+#  with_items: websphere_mq.limits
+#
+#- name: Install MQ series packages using yum
+#  yum: name={{ item }} state=present
+#  with_items:
+#    - '{{ websphere_mq.wd }}/MQSeriesRuntime{{ websphere_mq.rpm_suffix }}'
+#    - '{{ websphere_mq.wd }}/MQSeriesServer{{ websphere_mq.rpm_suffix }}'
+#    - '{{ websphere_mq.wd }}/MQSeriesJRE{{ websphere_mq.rpm_suffix }}'
+#    - '{{ websphere_mq.wd }}/MQSeriesJava{{ websphere_mq.rpm_suffix }}'
+
+- name: Checking Installation Manager existence
+  stat: path='{{ im.prefix }}/eclipse/tools/imcl'
+  register: imcl
+
+- name: Checking Installation Manager version
+  shell: '{{ im.prefix }}/eclipse/tools/imcl -silent version | grep {{ im.version }}'
+  register: im_version
+  failed_when: im_version.rc != 0 and im_version.rc != 1
+  changed_when: im_version.rc != 0
+  when: imcl.stat.exists
+
+- name: Install Installation Manager
+  command: '{{ im.wd }}/installc -acceptLicense -installationDirectory {{ im.prefix }}'
+  when: im_version.rc is not defined or im_version.rc != 0
+
