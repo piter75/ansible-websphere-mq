@@ -5,9 +5,9 @@ im:
     home: /var/mqm
   packages:
     - libselinux-python
-  version: 1.8.0.20140902_1503
+  version: 1.8.3000.20150606_0047
   prefix: /opt/IBM/IM
-  wd: /vagrant/im18/1.8.0
+  wd: /vagrant/im18/1.8.3
   kernel_params:
     - { name: kernel.shmmni, value: 4096 }
     - { name: kernel.shmall, value: 2097152 }
